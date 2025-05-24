@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Advanced Web Dashboard</title>
+  <style>
+    :root {
+      --primary: #6c63ff;
+      --accent: #00bcd4;
+      --light: #f1f1f1;
+      --dark: #333;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--light);
+      color: var(--dark);
+    }
+
+    header {
+      background: var(--primary);
+      color: white;
+      padding: 1.5rem;
+      text-align: center;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1rem;
+      padding: 1rem;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      padding: 1rem;
+    }
+
+    h2 {
+      color: var(--primary);
+    }
+
+    /* Quiz styles */
+    .quiz-question {
+      margin-bottom: 1rem;
+    }
+
+    .quiz-options button {
+      display: block;
+      margin: 0.3rem 0;
+      padding: 0.5rem;
+      width: 100%;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    /* Carousel styles */
+    .carousel {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .carousel img {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+    }
+
+    .carousel-controls {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 0.5rem;
+    }
+
+    .carousel-controls button {
+      flex: 1;
+      margin: 0 0.25rem;
+      padding: 0.5rem;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    /* API Data Display */
+    #jokeDisplay {
+      margin-top: 1rem;
+      font-style: italic;
+    }
+
+    @media (max-width: 600px) {
+      header {
+        font-size: 1.2rem;
+      }
+      .quiz-options button,
+      .carousel-controls button {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Interactive Dashboard: Quiz, Carousel & API Data</h1>
+  </header>
+
+  <main class="container">
+    <!-- Quiz Section -->
+    <section class="card">
+      <h2>Interactive Quiz</h2>
+      <div id="quiz">
+        <div class="quiz-question">
+          <p id="questionText">Loading question...</p>
+          <div class="quiz-options" id="options"></div>
+        </div>
+        <p id="quizResult"></p>
+      </div>
+    </section>
+
+    <!-- Carousel Section -->
+    <section class="card">
+      <h2>Image Carousel</h2>
+      <div class="carousel">
+        <img id="carouselImage" src="https://picsum.photos/seed/1/400/200" alt="Carousel Image" />
+        <div class="carousel-controls">
+          <button onclick="prevImage()">Previous</button>
+          <button onclick="nextImage()">Next</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- API Section -->
+    <section class="card">
+      <h2>Joke from Public API</h2>
+      <button onclick="fetchJoke()">Get a Random Joke</button>
+      <p id="jokeDisplay">Click the button to load a joke!</p>
+    </section>
+  </main>
+
+  <script>
+    // 1. Interactive Quiz
+    const quizData = [
+      {
+        question: "What does HTML stand for?",
+        options: ["Hyper Text Markup Language", "High Text Modern Language", "Home Tool Markup Language"],
+        answer: 0
+      },
+      {
+        question: "Which CSS property controls the text size?",
+        options: ["font-style", "text-size", "font-size"],
+        answer: 2
+      },
+      {
+        question: "What does DOM stand for?",
+        options: ["Document Object Model", "Display Output Module", "Digital Order Mechanism"],
+        answer: 0
+      }
+    ];
+
+    let currentQuestion = 0;
+
+    function loadQuestion() {
+      const q = quizData[currentQuestion];
+      document.getElementById("questionText").innerText = q.question;
+      const optionsDiv = document.getElementById("options");
+      optionsDiv.innerHTML = "";
+      q.options.forEach((opt, i) => {
+        const btn = document.createElement("button");
+        btn.textContent = opt;
+        btn.onclick = () => checkAnswer(i);
+        optionsDiv.appendChild(btn);
+      });
+    }
+
+    function checkAnswer(selected) {
+      const result = document.getElementById("quizResult");
+      if (selected === quizData[currentQuestion].answer) {
+        result.textContent = "Correct! ✅";
+      } else {
+        result.textContent = "Oops! Try again ❌";
+      }
+      currentQuestion = (currentQuestion + 1) % quizData.length;
+      setTimeout(() => {
+        result.textContent = "";
+        loadQuestion();
+      }, 1500);
+    }
+
+    loadQuestion();
+
+    // 2. Carousel Logic
+    const images = [
+      "https://picsum.photos/seed/1/400/200",
+      "https://picsum.photos/seed/2/400/200",
+      "https://picsum.photos/seed/3/400/200"
+    ];
+    let currentImg = 0;
+
+    function updateCarousel() {
+      document.getElementById("carouselImage").src = images[currentImg];
+    }
+
+    function nextImage() {
+      currentImg = (currentImg + 1) % images.length;
+      updateCarousel();
+    }
+
+    function prevImage() {
+      currentImg = (currentImg - 1 + images.length) % images.length;
+      updateCarousel();
+    }
+
+    // 3. Fetch from Public API
+    async function fetchJoke() {
+      const res = await fetch("https://api.chucknorris.io/jokes/random");
+      const data = await res.json();
+      document.getElementById("jokeDisplay").textContent = data.value;
+    }
+  </script>
+</body>
+</html>
